@@ -3,6 +3,7 @@ package GetStarted;
 import org.apache.tinkerpop.gremlin.driver.Cluster;
 import org.apache.tinkerpop.gremlin.driver.Result;
 import org.apache.tinkerpop.gremlin.driver.ResultSet;
+import org.apache.tinkerpop.gremlin.driver.exception.ResponseException;
 
 import java.util.concurrent.ExecutionException;
 
@@ -25,6 +26,8 @@ public class GraphApp {
         }
 
         String query = args[0];
+        System.out.println("Input Query : "+ query);
+        
         Cluster cluster;
         Client client;
 
@@ -50,19 +53,27 @@ public class GraphApp {
             completableFutureStatusProperties = results.statusAttributes();
             resultList = completableFutureResult.get();
             statusProperties = completableFutureStatusProperties.get();
-
+            System.out.println("Result Count:" + resultList.size());
             for(Result result : resultList){
                 System.out.println("\nQuery Result:\n\t" + result.toString());
+                
             }
     
             System.out.println("Status:" + statusProperties.get("x-ms-status-code").toString());
             System.out.println("Total Charge: " + statusProperties.get("x-ms-total-request-charge").toString());
-            
         }catch(ExecutionException | InterruptedException e){
             e.printStackTrace();
-            return;
+            System.exit(1);
         }catch(Exception e){
             e.printStackTrace();
+            ResponseException re = (ResponseException)e.getCause();
+
+            System.out.println("Status Code: " + re.getStatusAttributes().get().get("x-ms-status-code"));
+            System.out.println("SubStatus code:" + re.getStatusAttributes().get().get("x-ms-substatus-code"));
+            System.out.println("Retry After (ms):" + re.getStatusAttributes().get().get("x-ms-retry-after"));
+            System.out.println("Request Charge:" + re.getStatusAttributes().get().get("x-ms-total-request-charge"));
+            System.out.println("ActivityId: " + re.getStatusAttributes().get().get("x-ms-activity-id"));
+            throw(e);
         }
 
         
