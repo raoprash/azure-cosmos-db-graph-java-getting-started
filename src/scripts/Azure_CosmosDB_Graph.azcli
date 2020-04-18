@@ -1,0 +1,15 @@
+export RG=learn-7929b461-931d-497a-8447-5f7f77901ce5
+echo $RG
+# az cosmosdb create -g $RG --name prashgraphdb --kind GlobalDocumentDB 
+
+# az cosmosdb delete -g $RG --name prashgraphdb
+
+az cosmosdb create -g $RG --name prashgraphdb --capabilities EnableGremlin
+
+az cosmosdb gremlin database create -g $RG --account-name prashgraphdb --name sample-database
+
+az cosmosdb gremlin graph create -g $RG --account-name prashgraphdb --database-name sample-database --name sample-graph --partition-key-path '/name' --throughput 400
+
+g.addV('Product').property('id','p1').property('name','Phone Charger').property('price',12.99)
+
+g.addV("Product").property("id","p1").property("name","Phone Charger").property("price",12.99)
